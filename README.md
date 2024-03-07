@@ -150,7 +150,7 @@ GA_Action2번에는 Ability.type2.action 게임 태그를 매칭시켜줬다.
 ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/f5b9918a-8cb2-4beb-8862-81c7edf4a2a4)
 
 
-인자로 들어온 PlayerInputComponent를 UGASEnhancedInputComponent로 캐스팅 해주고,
+인수로 들어온 PlayerInputComponent를 UGASEnhancedInputComponent로 캐스팅 해주고,
 캐스팅된 변수를 사용하여
 Native Input Action은 BindNativeAction함수를
 Ability Input Action은 BindAbilityActions함수를 사용하여 등록해주면 된다.
