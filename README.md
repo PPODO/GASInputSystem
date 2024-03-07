@@ -95,8 +95,8 @@ FPS게임을 만든다 치자.
 
 
 자, 해당 Input Config에 대한 결과를 보여주도록 하겠다.
-Ability.type1.action 태그를 사용하는 GA는 화면에 Hello가 프린트되도록
-Ability.type2.action 태그를 사용하는 GA는 화면에 Hello2가 프린트되도록했다.
+Ability.type1.action 태그를 사용하는 GA는 화면에 Hello2가 프린트되도록
+Ability.type2.action 태그를 사용하는 GA는 화면에 Hello가 프린트되도록했다.
 
 
 ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/080658a3-87b5-4f97-8ec5-9867e16c2eb3)
