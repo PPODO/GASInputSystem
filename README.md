@@ -226,21 +226,8 @@ EGASAbilityActivationPolicy 타입을 반환해줘야하는데, 해당 변수는
 
 
 자 이제 마지막 챕터다.
-GameplayAbility블루프린트를 생성했다면 오른쪽 패널 위쪽에 변수 하나가 있을 것이다.
+GameplayAbility블루프린트를 생성했다면 왼쪽 패널에 함수 하나가 있을 것이다.
 
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/9db863b4-98ba-455a-8dec-9f5d9b6fa606)
-
-
-이게 이제 해당 어빌리티 활성화가 어떤 입력에 활성화 될 것인지에 대한 여부를 설정해주는 건데,
-
-onInputTriggered로 설정하면, 입력 시작과 끝에 한 번,
-whileInputActive로 설정하면, 입력이 끝날 때까지 해당 어빌리티가 실행된다.
-
-아, 자고로 onInputTriggered를 사용하기 위해선 Cooldown쪽에서 뭘 설정해줘야하는데 까먹고 아직 안 만들었으니 추후에 추가하겠다.
-
-
-그리고 왼쪽 패널을 보면,
 
 ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/3cc024a0-457b-47f7-95ea-b3cc4307f010)
 
