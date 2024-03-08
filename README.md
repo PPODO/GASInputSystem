@@ -27,7 +27,7 @@ GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 
     * [Ability 사용을 위한 GiveAbility와 RelationshipMapping](https://github.com/PPODO/GASInputSystem#Ability-사용을-위한-GiveAbility와-RelationshipMapping)
     * [Input Binding](https://github.com/PPODO/GASInputSystem#Input-Binding)
     * [InputAbilityInputTagPressed와 InputAbilityInputTagReleased 함수 선언 및 정의](https://github.com/PPODO/GASInputSystem#InputAbilityInputTagPressed와-InputAbilityInputTagReleased-함수-선언-및-정의)
-    * [Confirm과 Cancel을 위한 Native Binding](https://github.com/PPODO/GASInputSystem#Confirm과과-Cancel을-위한-Native-Binding)
+    * [Confirm과 Cancel을 위한 Native Binding](https://github.com/PPODO/GASInputSystem#Confirm과-Cancel을-위한-Native-Binding)
 
  7. GameplayAbility 에셋 생성 및 사용 방법
     * [IGASGameplayAbilityInterface의 상속](https://github.com/PPODO/GASInputSystem#IGASGameplayAbilityInterface의-상속)
@@ -205,7 +205,7 @@ GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 
 ### Ability 사용을 위한 GiveAbility와 RelationshipMapping
 
 
-  **어빌리티를 초기화하고, 부여하는 코드는 다음과 같다. **
+  **어빌리티를 초기화하고, 부여하는 코드는 다음과 같다.**
   
   ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/359d60c8-43c0-4755-aedc-4129de0bc311)
 
