@@ -3,9 +3,6 @@
 .vscode/
 .vsconfig
 
-# Rider cache directory
-.idea/
-
-# Unreal Plugin
+# folder
 Binaries/
 Intermediate/
