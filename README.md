@@ -1,263 +1,386 @@
 # GASInputSystem
 ***
-GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩 할 수 있게끔 개발 된 플러그인
+GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 있게끔 개발된 플러그인
 ***
 
 ## 목차
-1. Input Config 설정
-2. Ability Set 설정
-3. 인풋 바인딩
-4. Give Ability
-5. GASPlayerController 상속
-7. IGASGameplayAbilityInterface의 상속
-8. IGASGameplayAbilityInterface를 상속받은 GameplayAbility 사용 방법
+ 1. 에디터 설정
+    * [사용할 InputComponent의 변경](https://github.com/PPODO/GASInputSystem#사용할-InputComponent의-변경)
+
+ 2. 데이터 에셋 생성 및 설정
+    * [Input Config]
+    * [Ability Set]
+    * [Ability Tag Relationship Mapping]
+ 
+ 3. GameInstance 클래스 생성 및 설정
+    * [사용할 GameInstance를 변경하는 법]
+
+ 4. AbilitySystemComponent 클래스 생성
+    * [IGASAbilitySystemInterface의 상속]
+    * [ApplyAbilityBlockAndCancelTags 함수 정의]
+
+ 5. PlayerController 클래스 생성
+    * [GASPlayerController의 상속]
+    * [IGASPlayerControllerInterface의 상속]
+ 
+ 6. Character 클래스 생성
+    * [Ability 사용을 위한 GiveAbility, RelationshipMapping]
+    * [Input Binding]
+    * [InputAbilityInputTagPressed, InputAbilityInputTagReleased 함수 선언 및 정의]
+    * [Confirm, Cancel을 위한 Native Binding]
+
+ 7. GameplayAbility 에셋 생성 및 사용 방법
+    * [IGASGameplayAbilityInterface의 상속]
+    * [AbilityActivationCondition]
 
 
-
-
-# Input Config 설정
-해당 시스템을 사용하기 위해 설정해야하는 것들 중, 가장 중요한 Input Config 먼저 알아보자.
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/82ca7649-a34f-482c-b537-15441c07b717)
-
-
-위의 사진은 테스트를 위한 프로젝트 파일에서 생성한 InputConfig 에셋이다.
-실제로 사용하고 싶다면,
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/4f0cd320-02cb-47cc-8e87-61cd5f28bb7c)
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/9de50dae-4f5d-4df7-9f7f-b56de760e434)
-
-
-데이터 에셋에서 GASInputConfig을 상속받아 새로운 에셋을 생성하면 된다.
-생성한 후의 모습은 다음과 같을 것이다.
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/2f713b85-118c-4039-bed6-7de907663768)
-
-
-여기서 **Native Input Actions** 배열에는 캐릭터의 이동, 점프, 화면 움직임등의 
-어빌리티가 사용되지 않아도 되는 Input Action에 대한 정보만을 담아둬야한다.
-
-**Ability Input Actions**은 당연히 그 반대겠즁?
-
-
-자, 그럼 임시로 작성한 Input Config 데이터 에셋을 살펴보자.
 
 
 ***
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/f6d4e48a-8318-4d73-bc23-63d721b1775b)
+
+## 에디터 설정
+### 사용할 InputComponent의 변경
+  
+  해당 플러그인을 정상적으로 사용하기 위해선 일단,   
+  엔진의 기본 입력 컴포넌트 클래스를 해당 플러그인에서 제공하는 입력 컴포넌트로 변경해야 한다.   
 
 
-기본 속성값으로는 **Input Action**, **Use Multiple Input Tags**, **Input Tag**, **배열로 된 Input Tag**가 있을 것이다.
+  **프로젝트 세팅 -> 엔진 -> 입력 칸을 가보면 아래와 같이 입력 컴포넌트 클래스를 변경할 수 있다.**
 
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/e0898f88-72ff-43b8-ad50-81fdcc2e6bc3)
 
-Input Action은 말그대로 InputAction 에셋을 넣어주면 된다.
+  여기서 **기본 입력 컴포넌트 클래스**를 **GASEnhancedInputComponent** 클래스로 변경하면 된다.
 
-Move라면 IA_Move를, Look이라면 IA_Look, Jump라면 IA_Jump
+*** 
 
-액션에 맞는 IA 에셋을 알잘딱깔센하게 넣어주면 된다.
+## 데이터 에셋 생성 및 설정
+### Input Config
 
+  Input Config는 **IA(Input Action)와 Gameplay Tag에 대한 1:1 매칭**을 설정할 수 있는 데이터 에셋이다.   
+  
+  여기서 설정된 값을 통해 플레이어가 어떤 키를 입력했을 때,   
+  **Input System은 해당 IA와 매칭되어 있는 Gameplay Tag를 사용하는 어빌리티들을 자동으로 찾아서 실행**시켜 줄 것이다.
 
-Use Multiple Input Tags는 말 그대로 해당 입력에 여러개의 Input Tag를 사용할지에 대한 여부를 설정할 수 있다.
-Native Input에서는 여러개의 Input Tag를 사용할 필요가 없으므로, 해당 예제에선 설정하지 않았다.
+---
 
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/e8edbb81-9186-4361-b300-82342aa3e642)   
+  **Native Input Actions**
 
-Input Tag에는 해당 Input Action과 1:1로 매칭될 Input Tag를 설정해주면 된다.
+  ---
+  
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/79f4fb32-94a0-42dd-9c50-7ee88ab3045f)   
+  **Ability Input Actions**   
 
-
-Native Input 액션은 별거 없으니 그냥 넘어가자. 작성하기 귀찮다.
-
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/27b98c17-87f1-42f6-ba1e-4cf95407f2ef)
-
-
-자, Ability Input Actions는 어떻게 설정하면 되는지 설명하도록 하겠다.
-
-
-Input Action에는 그대로 사용할 InputAction 에셋을 넣어준다.
-
-Use Multiple Input Tags는 이제 Ability Input에 한해서만 사용할 수 있는데,
-해당 체크박스를 활성화하면, InputAction에 여러개의 Input Tag를 등록할 수 있게 할 수 있다.
-그러면 어떤 점이 좋냐?
-
-
-가장 좋은 예시로,
-FPS게임을 만든다 치자.
-소총, 권총, 샷건마다 Fire Ability가 존재할 것이고, 각 Fire Ability는 다른 GameplayTag를 가지고 있을 것이다.
-위의 상황에서 Multiple Input Tags를 활성화해주고, 해당 인풋에 Active될 GameplayTag를 등록해주면 위대한 GASInputComponent가
-내부적으로 알아서 처리해줄 것이다.
-내부적으로 처리되는 방법은 몰라도 된다.
-그것이 플러그인이기도 하고, 귀찮으니까..
+---
 
 
 
-자, 해당 Input Config에 대한 결과를 보여주도록 하겠다.
-Ability.type1.action 태그를 사용하는 GA는 화면에 Hello2가 프린트되도록
-Ability.type2.action 태그를 사용하는 GA는 화면에 Hello가 프린트되도록했다.
+  IA_Action2와 IA_Action이 설정되어 있는데, 각각의 IA는 InputTag.AbilityType1, InputTag.Weapon.Fire라는 Tag를 가지고 있다.   
+  
+  **IA_Action2에 대한 키가 입력되면, InputSystem은 InputTag.AbilityType1 태그를 사용하는 모든 어빌리티들을 호출해 준다.**   
+  
+  해당 데이터 에셋만 설정한다고 해서 바로 작동되진 않고,   
+  다음에 바로 소개할 **Ability Set**에서도 **GA와 Gameplay Tag를 1:1 매칭** 시켜줘야만 정상적으로 작동한다.
 
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/080658a3-87b5-4f97-8ec5-9867e16c2eb3)
+---
+### Ability Set
+
+  Ability Set은 **GA(GameplayAbility)와 Gameplay Tag에 대한 1:1 매칭**을 설정할 수 있는 데이터 에셋이다.
+
+  여기서 설정된 값을 통해 플레이어가 어떤 키를 입력했을 때,   
+  **Input System은 해당 Gameplay Tag와 매칭되어 있는 GA들을 자동으로 찾아서 실행**시켜 줄 것이다.
 
 
-결과는 아주 훌륭했다. 하나의 Input Action에 두 개의 GameplayAbility가 활성화됐다.
-잠깐, Input Action 하나의 GA_1과 GA_2를 등록했지만, 키를 눌렀을 때 GA 두개가 동시에 활성화 되는 것이 아닌, 어떤 조건에 충족할 땐 GA_1번을 또 다른 어떤 조건에 충족할 땐 GA_2번을 활성화하고 싶다고?
-어허. 해당 문제를 해결하는 방법은 찬찬히 설명할테니, 일단 지금은 여기까지하고 넘어가도록 하자.
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/bff2791e-6053-49f5-ac93-4846bbacb095)   
+
+  
+
+  **GA_Action2는 InputTag.AbilityType1 태그와 매칭**되어 있는 걸 볼 수 있다.   
+  
+  Input Config 에셋에서 **InputTag.AbilityType1 태그는 IA_Action2**에 연결되어 있었는데,   
+  **IA_Action2에 대한 입력**이 들어온다면, **Input System은 IA_Action2와 연결된 태그**를 통해 **GA_Action2 어빌리티를 실행**시켜 줄 것이다.
+
+
+  물론 **하나의 Input Tag에 여러 개의 GA를 등록**할 수도 있다.   
+  하지만, 그렇게 설정한다면 **입력 하나에 두 개의 어빌리티가 실행되는 문제**가 생기게 된다.   
+  **이를 해결하기 위한 방법은 챕터 7에서 소개하도록 하겠다.**
+  
+
+
+---
+### Ability Tag Relationship Mapping
+
+  Ability Tag Relationship Mapping은 말그대로 **Ability Tag의 Relationship**을 설정할 수 있는 데이터 에셋이다.
+
+
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/c0f78216-1592-4530-8df6-8f6af1185f96)
 
 
 
-
-# Ability Set 설정
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/82ca7649-a34f-482c-b537-15441c07b717)
-
-
-DA_AbilitySet이란 데이터 에셋이 있을 것이다.
-해당 데이터 에셋에서는 GameplayTag과 GA에 대한 1:1 매칭 설정을 해줄 수 있다.
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/948e9ac2-6b20-437d-8f73-dc3953c48135)
-
-
-Ability Set에셋 내부 예시는 이렇다.
-
-GA_Action1번에는 Ability.type1.action 게임 태그를
-GA_Action2번에는 Ability.type2.action 게임 태그를 매칭시켜줬다.
-
-
-고로 
-
-
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/080658a3-87b5-4f97-8ec5-9867e16c2eb3)
-
-
-위의 결과가 나온 것이다.
+  **Ability Tag**에는 **해당 설정을 사용할 태그**를   
+  **Ability Tags To Block**에는 **해당 어빌리티의 실행을 Block할 태그**를   
+  **Ability Tags To Cancel**에는 **해당 어빌리티의 실행을 Cancel할 태그**를 설정해 주면 된다.   
+  **현재는 Ability Tags To Block만 사용할 수 있으니 참고할 것.**   
 
 
 ***
-자, 가장 중요한 데이터 에셋 설정 방법은 여기까지다.
-다음은 Character 클래스 내부에서 GAS를 어떻게 EnhancedInputComponent에 바인딩 하느냐에 대한 설명이다.
+
+## GameInstance 클래스 생성 및 설정
+### 사용할 GameInstance를 변경하는 법
+
+  해당 플러그인을 정상적으로 사용하기 위해선      
+  기본으로 사용할 GameInstance를 해당 플러그인에서 제공하는 GameInstance로 변경해야 한다.   
+
+
+  **프로젝트 세팅 -> 프로젝트 -> 맵 & 모드 칸을 가보면 아래와 같이 게임 인스턴 클래스를 변경할 수 있다.**
+
+
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/ad023a4e-e3db-4555-a8f8-219947d45d87)
+
+
+  여기서 **게임 인스턴스 클래스**를 **GASGameInstance** 클래스로 변경하면 된다.
+
+
 ***
 
+## AbilitySystemComponent 클래스 생성
+### IGASAbilitySystemInterface의 상속
 
-# 인풋 바인딩
-***
+  모종의 이유로 **입력에 따른 어빌리티 실행 로직**을 AbilitySystemComponent의 파생 클래스가 아닌,   
+  **IGASAbilitySystemInterface에 구현**했다 보니 **해당 플러그인을 사용하기 위해선**,   
+  **사용자는 AbilitySystemComponent의 파생 클래스에서 IGASAbilitySystemInterface를 상속**받아야만 한다.
+  
 
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/3438304a-99dc-4fea-bafb-8dd6ef2d3cad)
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/f5b9918a-8cb2-4beb-8862-81c7edf4a2a4)
 
+  **사용자는 위처럼 AbilitySystemComponent와 IGASAbilitySystemInterface를 상속받는 클래스를 하나 만들고,   
+  ApplyAbilityBlockAndCancelTags 함수를 선언 및 정의해야 한다.**
 
-인수로 들어온 PlayerInputComponent를 UGASEnhancedInputComponent로 캐스팅 해주고,
-캐스팅된 변수를 사용하여
-Native Input Action은 BindNativeAction함수를
-Ability Input Action은 BindAbilityActions함수를 사용하여 등록해주면 된다.
+---
+### ApplyAbilityBlockAndCancelTags 함수 정의
 
 
-BindAbilityActions함수에서 InputAbilityInputTagPressed 함수와 InputAbilityInputTagReleased 함수는 따로 정의해줘야하는데,
-해당 코드도 보여주도록 하겠다.
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/a0dc6cb0-79e0-4da1-89e5-1fa6652873f1)
 
+  다음과 같이 작성해 주면 된다.   
+  **Ability Tag Relationship Mapping**과 관련된 기능이 정상적으로 작동하기 위해선 필수이므로 까먹지 말고 꼭 작성하자.
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/bfff47b2-6848-43c8-8b26-3a74033d34a2)
+---
 
+## PlayerController 클래스 생성
+### GASPlayerController와 IGASPlayerControllerInterface의 상속
 
-AbilitySystemComponent를 IGASAbilitySystemInterface 타입으로 업 캐스팅해주고, 해당 함수들을 호출해주면 된다.
-**자고로 AbilitySystemComponent는 IGASAbilitySystemInterface를 상속받아야 한다!**
 
+  **입력에 대한 처리를 GASPlayerController내부에서 하다 보니, 실제로 월드에 생성되는 PC는 GASPlayerController를 상속받야아만 한다.**   
+  고로, **사용자는 GASPlayerController와 IGASPlayerControllerInterface를 상속**받는 새로운 PC 클래스를 만들어야 한다.   
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/4cf4f018-ea7b-4867-977d-350c419ff341)
+  
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/10f26993-34aa-4f59-a322-7b54ce4e7350)
 
 
-**다중 상속이지만, 뭐가 됐던 일단 다형성의 이유로 UAbilitySystemComponent와 IGASAbilitySystemInterface 두 가지 타입 모두에게 업 캐스팅이 가능하다.**
+  **IGASPlayerControllerInterface를 상속받아야 하는 이유는 다음과 같다.**
 
+  
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/ca4bc699-7e06-46db-bcb4-bd60b297d969)
 
-이렇게 Input Component에 바인딩만 잘 해주면, 내부적으로 알아서 잘 처리해주니 걱정말라구!
 
+  **매 틱마다 ASC에 접근하여 어빌리티에 대한 인풋 처리를 해주어야 하는데,**  
+  요 **ASC가 PlayerState에 있을지, 아니면 Character에 있을지**는 사용자나 게임에 따라 다르기에   
+  사용자는 **IGASPlayerControllerInterface에서 상속받는 GetAbilitySystemComponent에 대한 함수를 재정의**해 주어야 한다.
 
 
-# Give Ability
-***
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/73861883-542d-422c-8933-c16c10ae3b4e)
 
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/f9f7e607-dbea-4e40-9738-43e8dbfce564)
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/4550314e-afed-4bcf-9bb4-0abb5dcdbd8b)
 
+  알아서 재정의 해주도록.
 
-캐릭터 클래스 내부에서 이렇게 해주면 된다. 귀찮으니 설명 생략
 
+---
 
+## Character 클래스 생성
+### Ability 사용을 위한 GiveAbility, RelationshipMapping
 
-# GASPlayerController 상속
-***
 
-설명할 건 따로 없다.
+  **어빌리티를 초기화하고, 부여하는 코드는 다음과 같다. **
+  
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/359d60c8-43c0-4755-aedc-4129de0bc311)
 
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/01584aa2-84b2-411e-98bf-f43cc2af983b)
+  **본인은 현재 PlayerState에 ASC가 존재하므로 이렇게 작성했다.**   
+  **만약 캐릭터에 ASC를 두고 싶다면 알잘딱깔센하게 작성하도록 하자.**
 
 
-새로운 PC를 만들어서 AGASPlayerController 상속 받게끔 해주면 내부적으로 알아서 입력에 대한 처리를 해줄 것이다.
+---
+### Input Binding
 
 
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/6e7f1d4c-a131-40cd-b31e-90ded8128dc6)
 
-# IGASGameplayAbilityInterface의 상속
-***
+  **Input Binding을 하기 위해선, SetupPlayerInputComponent함수에서 인수로 들어오는 값**을    
+  **UGASEnhancedInputComponent 타입으로 캐스팅**해 줘야 한다.   
+  
+  **캐스팅 전에, 프로젝트 설정에서 기본 입력 컴포넌트를 GASEnhancedInputComponent로 바꿨는지 확인하자. 안그럼 작동 안 한다. **  
 
+  
+  바인딩하려는 이벤트가 **Native Input인지 Ability Input인지에 따라 호출하는 함수**가 다르므로 유의할 것.   
+  **Ability Input은 Input Config에서 설정만 해주면 SetupPlayerInputComponent함수에서 알아서 바인딩**하지만,   
+  **Native Input은 해당 입력을 처리할 함수를 넣어줘야 하므로 뭐...** 코드 보면 이해했을 것이다.   
+  
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/4ca56dea-654c-4cf1-a781-9dbc8b1581d9)
+---
+### InputAbilityInputTagPressed, InputAbilityInputTagReleased 함수 선언 및 정의
 
+  **Ability Input을 처리해 주기 위해선 해당 함수들을 선언하고 정의해줘야 한다.**   
+  **작성은 다음과 같이 하면 된다.**
+  
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/69e1af74-743d-4e4d-9eab-9bd60474eeea)
 
-GameplayAbility는 무줙권 IGASGameplayAbilityInterface를 상속받아야 한다. 안그럼 문제 생긴다. 내부적으로 그렇게 되게끔 했기에..
 
+---
+### Confirm, Cancel을 위한 Native Binding
 
-클래스 내부에 GetActivationPolicy 함수는 IGASGameplayAbilityInterface에서 순수 가상 함수로 선언되었기에 상속 받는 하위 클래스에서 무족권 구현해줘야한다.
-EGASAbilityActivationPolicy 타입을 반환해줘야하는데, 해당 변수는 인터페이스 클래스에 없기 때문에ㅋㅋ
-하위 클래스에서 선언하고, GetActivationPolicy 구현부에서 리턴까지 작성해줘야한다.
+  **타켓팅 기능을 사용하기 위해선 Confirm과 Cancel에 대한 입력이 존재**해야 하는데, 이를 추가하는 방법이다.   
+  일단 **두 입력 모두 Native Input**이다.   
+  고로 **Input Config에서 Native Input**으로 **IA_Confirm과 IA_Cancel Input Action과 Input Tag를 등록**해 주자.   
 
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/794599e6-96db-4797-bef0-96f3f86562aa)
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/4e4b6a18-b084-4981-a987-d3f3badf8daf)
 
 
+  **그리고 Native Input인 만큼 SetupPlayerInputComponent 함수 내부에서 해당 입력에 따라 어떤 함수를 호출할지 정해줘야한다.**
 
 
-# IGASGameplayAbilityInterface를 상속받은 GameplayAbility 사용 방법
-***
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/2fc29a00-d729-4542-a433-5a92421ec44c)
 
+  **이렇게 해주면 문제없이 GA에서 Wait Target Data과 비슷한 함수들을 사용할 수 있게 된다.**
 
-자 이제 마지막 챕터다.
-GameplayAbility블루프린트를 생성했다면 왼쪽 패널에 함수 하나가 있을 것이다.
 
+----
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/3cc024a0-457b-47f7-95ea-b3cc4307f010)
+## GameplayAbility 에셋 생성 및 사용 방법
+### IGASGameplayAbilityInterface의 상속
 
+  **사용자는 GameplayAbility를 사용하기 위해서 IGASGameplayAbilityInterface를 상속받는 GameplayAbility 클래스**를 먼저 생성해야만한다.   
+  그리고 **모든 GA는 해당 GameplayAbility를 기반**으로 만들면 된다.   
 
-AbilityActivationCondition이라는 IGASGameplayAbilityInterface에서 상속받은 함수가 하나 있을텐데, 이건 무조건 구현해줘야 한다.
+  그러면 **IGASGameplayAbilityInterface에서 상속받는 함수**가 있을 텐데, 이는 **순수 가상 함수**이기 때문에    
+  **이를 상속 받는 하위 클래스는 해당 함수를 정의해줘야 한다.**   
+  또, **해당 함수에서 EGASAbilityActivationPolicy 타입을 반환**해야 하는데, **해당 변수는 인터페이스에 선언되지 않았기에**   
+  **하위 클래스에서 선언해 주도록 하자.**
 
-이게 챕터 1에서 말한
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/5dac9a9b-4f9e-4130-8766-c4f21fdd97a9)
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/b7f608bd-43cd-4a22-b313-d0b7c67b46e8)
 
-위의 문제를 해결하기 위한 방법이다.
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/7b4a3a53-a167-4f26-bdd6-a081445f39ce)
 
 
-해당 함수 내부를 보면 bool 값을 리턴하게끔 되어 있는데, 여기서 해당 어빌리티가 실행되기 위한 조건에 대한 로직을 작성하면 된다.
 
-이해를 위해 예시로 만든 프로젝트에서 GA_1번의 리턴 값은 false로 GA_2번의 리턴 값을 true로 설정하고 결과를 보자.
+---
+### AbilityActivationCondition
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/09825f95-ed12-4444-8e98-21e419dffcf2)
+  우리의 새로운 **Input System은 Input Tag 하나에 여러 개의 GA를 등록**할 수 있다.   
+  하지만 그렇게 되면 **생기는 문제**가 하나 있다.   
+  바로 **해당 Input Tag에 맞는 입력이 들어왔을 시, 해당 Tag에 등록된 모든 GA가 활성화**된다는 것이다.   
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/0887670f-f9f5-4693-bcae-04d010cc3f07)
+  **AbilityActivationCondition는 이를 해결하기 위한 수단**이다.   
 
+  일단 **해당 함수는 블루프린트에서 구현하는 함수이며, IGASGameplayAbilityInterface에서 상속**받는다.   
+  해당 함수 내부를 보면,   
+  
+  ![image](https://github.com/PPODO/GASInputSystem/assets/37787879/ddfbb80a-291c-4d58-bf22-4a363efc284c)
 
-GA_1번은 화면에 Hello2를, GA_2번은 화면에 Hello를 출력할텐데,
-이게 정상적으로 작동한다면, 화면에는 GA_2번의 Hello만 출력되어야 한다.
+  이렇게 **bool 값을 리턴하게끔 되어있는데, 해당 리턴 값을 통해 해당 어빌리티의 실행 여부를 (런타임에)결정할 수 있다.**
 
 
-![image](https://github.com/PPODO/GASInputSystem/assets/37787879/a8d32a74-061e-4bd5-b697-56da362799c5)
+  예시를 들어보자   
+  FPS 게임에서 총이 3개가 있다고 하면, **총마다 Fire 어빌리티가 존재**할 것이고, **어빌리티들의 Input Tag는 InputTag.Weapon.Fire**가 될 것이다.   
+  근데 이렇게 되면, **Fire 입력이 들어올 때마다 3개의 총마다 각각의 Fire 어빌리티가 활성화**될 것이다.   
+  **왜냐하면, 하나의 Input Tag에 여러 개의 GA를 등록했기 때문이다.**   
+  그렇다면 이는 어떻게 해결할까?   
 
+  **AbilityActivationCondition 함수 내부에서 캐릭터가 현재 들고 있는 무기와 GA_Fire가 실행되는 무기 타입을 비교**하고,   
+  **두 값이 일치할 시에만 해당 어빌리티가 실행되게끔 하면 된다.**   
 
-자 이상 없다.
 
-그럼 20000
+  뇌피셜이긴한데, 될 것이다. 된다 물론.  
+  그럼 20000
+  
+  
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
