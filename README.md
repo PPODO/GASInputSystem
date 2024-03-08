@@ -24,10 +24,10 @@ GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 
     * [IGASPlayerControllerInterface의 상속](https://github.com/PPODO/GASInputSystem#IGASPlayerControllerInterface의-상속)
  
  6. Character 클래스 생성
-    * [Ability 사용을 위한 GiveAbility, RelationshipMapping](https://github.com/PPODO/GASInputSystem#Ability-사용을-위한-GiveAbility,-RelationshipMapping)
+    * [Ability 사용을 위한 GiveAbility와 RelationshipMapping](https://github.com/PPODO/GASInputSystem#Ability-사용을-위한-GiveAbility와-RelationshipMapping)
     * [Input Binding](https://github.com/PPODO/GASInputSystem#Input-Binding)
-    * [InputAbilityInputTagPressed, InputAbilityInputTagReleased 함수 선언 및 정의](https://github.com/PPODO/GASInputSystem#InputAbilityInputTagPressed,-InputAbilityInputTagReleased-함수-선언-및-정의)
-    * [Confirm, Cancel을 위한 Native Binding](https://github.com/PPODO/GASInputSystem#Confirm,-Cancel을-위한-Native-Binding)
+    * [InputAbilityInputTagPressed와 InputAbilityInputTagReleased 함수 선언 및 정의](https://github.com/PPODO/GASInputSystem#InputAbilityInputTagPressed와-InputAbilityInputTagReleased-함수-선언-및-정의)
+    * [Confirm과 Cancel을 위한 Native Binding](https://github.com/PPODO/GASInputSystem#Confirm과과-Cancel을-위한-Native-Binding)
 
  7. GameplayAbility 에셋 생성 및 사용 방법
     * [IGASGameplayAbilityInterface의 상속](https://github.com/PPODO/GASInputSystem#IGASGameplayAbilityInterface의-상속)
@@ -202,7 +202,7 @@ GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 
 ---
 
 ## Character 클래스 생성
-### Ability 사용을 위한 GiveAbility, RelationshipMapping
+### Ability 사용을 위한 GiveAbility와 RelationshipMapping
 
 
   **어빌리티를 초기화하고, 부여하는 코드는 다음과 같다. **
@@ -232,7 +232,7 @@ GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 
   
 
 ---
-### InputAbilityInputTagPressed, InputAbilityInputTagReleased 함수 선언 및 정의
+### InputAbilityInputTagPressed와 InputAbilityInputTagReleased 함수 선언 및 정의
 
   **Ability Input을 처리해 주기 위해선 해당 함수들을 선언하고 정의해줘야 한다.**   
   **작성은 다음과 같이 하면 된다.**
@@ -241,7 +241,7 @@ GAS에서 GameplayAbility를 조금 더 직관적이고 쉽게 바인딩할 수 
 
 
 ---
-### Confirm, Cancel을 위한 Native Binding
+### Confirm과 Cancel을 위한 Native Binding
 
   **타켓팅 기능을 사용하기 위해선 Confirm과 Cancel에 대한 입력이 존재**해야 하는데, 이를 추가하는 방법이다.   
   일단 **두 입력 모두 Native Input**이다.   
