@@ -12,14 +12,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, DisplayName = "Input Action", Category = "GAS Input Action")
 	class UInputAction* m_pInputAction = nullptr;
 
-	UPROPERTY(EditDefaultsOnly, DisplayName = "Use Multiple Input Tags", Category = "GAS Input Action")
-	bool m_bUseMultipleInputTags = false;
-
 	UPROPERTY(EditDefaultsOnly, DisplayName = "Input Tag", meta = (EditCondition = "!m_bUseMultipleInputTags"), Category = "GAS Input Action")
 	FGameplayTag m_inputTag;
-
-	UPROPERTY(EditDefaultsOnly, DisplayName = "Input Tag", meta = (EditCondition = "m_bUseMultipleInputTags"), Category = "GAS Input Action")
-	TArray<FGameplayTag> m_inputTags;
 
 };
 

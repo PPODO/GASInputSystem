@@ -32,25 +32,12 @@ inline void UGASEnhancedInputComponent::BindAbilityActions(const UGASInputConfig
 	check(pInputConfig);
 
 	for (const auto& action : pInputConfig->m_abilityInputActions) {
-		if (action.m_pInputAction) {
-			if (!action.m_bUseMultipleInputTags && action.m_inputTag.IsValid()) {
-				if (pressedFunc)
-					BindAction(action.m_pInputAction, ETriggerEvent::Triggered, pObject, pressedFunc, action.m_inputTag);
+		if (action.m_pInputAction && action.m_inputTag.IsValid()) {
+			if (pressedFunc)
+				BindAction(action.m_pInputAction, ETriggerEvent::Triggered, pObject, pressedFunc, action.m_inputTag);
 
-				if (releaseFunc)
-					BindAction(action.m_pInputAction, ETriggerEvent::Completed, pObject, releaseFunc, action.m_inputTag);
-			}
-			else {
-				for (const auto& tag : action.m_inputTags) {
-					if (tag.IsValid()) {
-						if (pressedFunc)
-							BindAction(action.m_pInputAction, ETriggerEvent::Triggered, pObject, pressedFunc, tag);
-
-						if (releaseFunc)
-							BindAction(action.m_pInputAction, ETriggerEvent::Completed, pObject, releaseFunc, tag);
-					}
-				}
-			}
+			if (releaseFunc)
+				BindAction(action.m_pInputAction, ETriggerEvent::Completed, pObject, releaseFunc, action.m_inputTag);
 		}
 	}
 }
