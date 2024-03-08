@@ -23,7 +23,7 @@ void UGASAbilitySet::GiveToAbilitySystem(UAbilitySystemComponent* pAbilitySystem
 		FGameplayAbilitySpec abilitySpec(abilityToGrant.m_pAbility->GetDefaultObject<UGameplayAbility>(), abilityToGrant.m_iAbilityLevel);
 		abilitySpec.SourceObject = pSourceObject;
 		abilitySpec.DynamicAbilityTags.AddTag(abilityToGrant.m_inputTag);
-		
+
 		const FGameplayAbilitySpecHandle AbilitySpecHandle = pAbilitySystemComp->GiveAbility(abilitySpec);
 
 		if (pOutGrantedHandles)

@@ -16,18 +16,26 @@ public:
 	IGASAbilitySystemInterface();
 
 public:
-	void AbilityInputTagPressed(class UAbilitySystemComponent* pAbilitySystemComp, const FGameplayTag& inputTag);
-	void AbilityInputTagReleased(class UAbilitySystemComponent* pAbilitySystemComp, const FGameplayTag& inputTag);
+	void AbilityInputTagPressed(const FGameplayTag& inputTag);
+	void AbilityInputTagReleased(const FGameplayTag& inputTag);
 
-	void ProcessAbilityInput(class UAbilitySystemComponent* pAbilitySystemComp, float fDeltaTime, bool bGamePaused);
+	void ProcessAbilityInput(float fDeltaTime, bool bGamePaused);
 	void ClearAbilityInput();
 
 protected:
+	void AbilitySpecInputPressed(class UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec);
+	void AbilitySpecInputReleased(class UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec);
+
+	void ApplyAbilityBlockAndCancelTagsToSystem(const FGameplayTagContainer& abilityTags, class UGameplayAbility* pRequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& blockTags, FGameplayTagContainer& outModifiedBlockTags, bool bExecuteCancelTags, const FGameplayTagContainer& cancelTags, FGameplayTagContainer& outModifiedCancelTags);
+
+protected:
+	class UGASAbilityTagRelationShipMapping* m_pTagRelationshipMapping;
+
 	TArray<FGameplayAbilitySpecHandle> m_inputPressedSpecHandles;
 	TArray<FGameplayAbilitySpecHandle> m_inputReleasedSpecHandles;
 	TArray<FGameplayAbilitySpecHandle> m_inputHeldSpecHandles;
 
-public:
-	void AbilitySpecInputPressedA(class UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec);
-	void AbilitySpecInputReleased(class UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec);
+public: // setter, getter
+	void SetTagRelationshipMapping(class UGASAbilityTagRelationShipMapping* pNewMapping);
+
 };

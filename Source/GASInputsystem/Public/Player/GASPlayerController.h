@@ -13,6 +13,5 @@ public:
 protected:
 	virtual void PreProcessInput(const float DeltaTime, const bool bGamePaused) override;
 	virtual void PostProcessInput(const float DeltaTime, const bool bGamePaused) override;
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const;
 
 };

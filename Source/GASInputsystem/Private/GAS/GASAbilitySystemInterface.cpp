@@ -1,6 +1,6 @@
 #include "GAS/GASAbilitySystemInterface.h"
 #include "GAS/GASGameplayAbilityInterface.h"
-
+#include "GAS/AbilityTagRelationShipMapping.h"
 
 IGASAbilitySystemInterface::IGASAbilitySystemInterface() {
 	m_inputPressedSpecHandles.Reset();
@@ -8,7 +8,10 @@ IGASAbilitySystemInterface::IGASAbilitySystemInterface() {
 	m_inputHeldSpecHandles.Reset();
 }
 
-void IGASAbilitySystemInterface::AbilityInputTagPressed(UAbilitySystemComponent* pAbilitySystemComp, const FGameplayTag& inputTag) {
+void IGASAbilitySystemInterface::AbilityInputTagPressed(const FGameplayTag& inputTag) {
+	auto pAbilitySystemComp = Cast<UAbilitySystemComponent>(this);
+	check(pAbilitySystemComp);
+
 	if (pAbilitySystemComp && inputTag.IsValid()) {
 		for (const auto& abilitySpec : pAbilitySystemComp->GetActivatableAbilities()) {
 			if (abilitySpec.Ability && (abilitySpec.DynamicAbilityTags.HasTagExact(inputTag))) {
@@ -19,7 +22,10 @@ void IGASAbilitySystemInterface::AbilityInputTagPressed(UAbilitySystemComponent*
 	}
 }
 
-void IGASAbilitySystemInterface::AbilityInputTagReleased(UAbilitySystemComponent* pAbilitySystemComp, const FGameplayTag& inputTag) {
+void IGASAbilitySystemInterface::AbilityInputTagReleased(const FGameplayTag& inputTag) {
+	auto pAbilitySystemComp = Cast<UAbilitySystemComponent>(this);
+	check(pAbilitySystemComp);
+
 	if (pAbilitySystemComp && inputTag.IsValid()) {
 		for (const auto& abilitySpec : pAbilitySystemComp->GetActivatableAbilities()) {
 			if (abilitySpec.Ability && (abilitySpec.DynamicAbilityTags.HasTagExact(inputTag))) {
@@ -30,8 +36,10 @@ void IGASAbilitySystemInterface::AbilityInputTagReleased(UAbilitySystemComponent
 	}
 }
 
-void IGASAbilitySystemInterface::ProcessAbilityInput(class UAbilitySystemComponent* pAbilitySystemComp, float fDeltaTime, bool bGamePaused) {
+void IGASAbilitySystemInterface::ProcessAbilityInput(float fDeltaTime, bool bGamePaused) {
 	static TArray<FGameplayAbilitySpecHandle> abilitiesToActivate;
+	auto pAbilitySystemComp = Cast<UAbilitySystemComponent>(this);
+
 	check(pAbilitySystemComp);
 
 	abilitiesToActivate.Reset();
@@ -53,7 +61,7 @@ void IGASAbilitySystemInterface::ProcessAbilityInput(class UAbilitySystemCompone
 				pAbilitySpec->InputPressed = true;
 
 				if (pAbilitySpec->IsActive())
-					AbilitySpecInputPressedA(pAbilitySystemComp, *pAbilitySpec);
+					AbilitySpecInputPressed(pAbilitySystemComp, *pAbilitySpec);
 				else {
 					const auto* pAbilityHelper = CastChecked<IGASGameplayAbilityInterface>(pAbilitySpec->Ability);
 
@@ -65,7 +73,7 @@ void IGASAbilitySystemInterface::ProcessAbilityInput(class UAbilitySystemCompone
 	}
 
 	for (const auto& abilitySpecHandle : abilitiesToActivate)
-		UE_LOG(LogTemp, Error, L"%d", pAbilitySystemComp->TryActivateAbility(abilitySpecHandle));
+		pAbilitySystemComp->TryActivateAbility(abilitySpecHandle);
 
 	for (const auto& specHandle : m_inputReleasedSpecHandles) {
 		if (auto* pAbilitySpec = pAbilitySystemComp->FindAbilitySpecFromHandle(specHandle)) {
@@ -88,19 +96,31 @@ void IGASAbilitySystemInterface::ClearAbilityInput() {
 	m_inputHeldSpecHandles.Reset();
 }
 
-void IGASAbilitySystemInterface::AbilitySpecInputPressedA(UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec) {
+void IGASAbilitySystemInterface::AbilitySpecInputPressed(UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec) {
 	check(pAbilitySystemComp);
-
 	pAbilitySystemComp->AbilitySpecInputPressed(spec);
+
 	if (spec.IsActive())
 		pAbilitySystemComp->InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, spec.Handle, spec.ActivationInfo.GetActivationPredictionKey());
 }
 
 void IGASAbilitySystemInterface::AbilitySpecInputReleased(UAbilitySystemComponent* pAbilitySystemComp, FGameplayAbilitySpec& spec) {
 	check(pAbilitySystemComp);
+	pAbilitySystemComp->AbilitySpecInputReleased(spec);
 
-	pAbilitySystemComp->AbilitySpecInputPressed(spec);
 	if (spec.IsActive()) {
 		pAbilitySystemComp->InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, spec.Handle, spec.ActivationInfo.GetActivationPredictionKey());
 	}
+}
+
+void IGASAbilitySystemInterface::ApplyAbilityBlockAndCancelTagsToSystem(const FGameplayTagContainer& abilityTags, UGameplayAbility* pRequestingAbility, bool bEnableBlockTags, const FGameplayTagContainer& blockTags, FGameplayTagContainer& outModifiedBlockTags, bool bExecuteCancelTags, const FGameplayTagContainer& cancelTags, FGameplayTagContainer& outModifiedCancelTags) {
+	outModifiedBlockTags = blockTags;
+	outModifiedCancelTags = cancelTags;
+
+	if (m_pTagRelationshipMapping)
+		m_pTagRelationshipMapping->GetAbilityTagsToBlockAndCancel(abilityTags, &outModifiedBlockTags, &outModifiedCancelTags);
+}
+
+void IGASAbilitySystemInterface::SetTagRelationshipMapping(class UGASAbilityTagRelationShipMapping* pNewMapping) {
+	m_pTagRelationshipMapping = pNewMapping;
 }

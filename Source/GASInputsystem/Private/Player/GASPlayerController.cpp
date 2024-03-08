@@ -1,7 +1,7 @@
 #include "Player/GASPlayerController.h"
+#include "Player/GASPlayerControllerInterface.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/GASAbilitySystemInterface.h"
-#include "GameFramework/PlayerState.h"
 
 AGASPlayerController::AGASPlayerController() {
 }
@@ -11,13 +11,8 @@ void AGASPlayerController::PreProcessInput(const float DeltaTime, const bool bGa
 }
 
 void AGASPlayerController::PostProcessInput(const float DeltaTime, const bool bGamePaused) {
-	if (auto pAbilitySystemComp = Cast<IGASAbilitySystemInterface>(GetAbilitySystemComponent()))
-		pAbilitySystemComp->ProcessAbilityInput(Cast<UAbilitySystemComponent>(pAbilitySystemComp), DeltaTime, bGamePaused);
-}
-
-UAbilitySystemComponent* AGASPlayerController::GetAbilitySystemComponent() const {
-	if (auto pAbilitySystemInterface = Cast<IAbilitySystemInterface>(GetPlayerState<APlayerState>()))
-		return pAbilitySystemInterface->GetAbilitySystemComponent();
-
-	return nullptr;
+	if (auto pPCInterface = Cast<IGASPlayerControllerInterface>(this)) {
+		if (auto pAbilitySystemComp = Cast<IGASAbilitySystemInterface>(pPCInterface->GetAbilitySystemComponent()))
+			pAbilitySystemComp->ProcessAbilityInput(DeltaTime, bGamePaused);
+	}
 }
